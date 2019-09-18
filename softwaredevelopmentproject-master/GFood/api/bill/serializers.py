@@ -22,7 +22,7 @@ class BillDetailSerializer(ModelSerializer):
     class Meta:
         model = Bill
         fields = '__all__'
-        #read_only_fields = ('user','total',)
+        read_only_fields = ('user','total','is_deleted','address',)
 
 
 class Merchant_BillListSerializer(ModelSerializer):

@@ -40,3 +40,18 @@ class Merchant_ItemDetailSerializer(ModelSerializer):
         fields = '__all__'
         read_only_fields = ('cart','bill','price','quantity',)
         depth = 2
+
+
+class AdminListItemSerializer(ModelSerializer):
+    url = HyperlinkedIdentityField(view_name='gfood:merchant_detail_item',lookup_field='pk')
+
+    class Meta:
+        model = Item
+        fields = '__all__'
+
+
+class AdminDetailItemSerializer(ModelSerializer):
+    class Meta:
+        model = Item
+        fields = '__all__'
+        read_only_fields = ('cart','bill','price','quantity',)

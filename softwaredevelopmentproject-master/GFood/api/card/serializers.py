@@ -13,3 +13,14 @@ class CustomUserSerializer(ModelSerializer):
     class Meta:
         model = CustomUser
         fields = '__all__'
+
+class BankAccountCreateSerializer(serializers.Serializer):
+    account_holder_name = serializers.CharField(max_length=16)
+    routing_number = serializers.IntegerField()
+    account_number = serializers.IntegerField()
+
+class MyBankAccountSerializer(ModelSerializer):
+
+    class Meta:
+        model = CustomUser
+        fields = '__all__'

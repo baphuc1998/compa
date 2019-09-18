@@ -16,8 +16,8 @@ import stripe
 class UserListView(generics.ListAPIView, mixins.ListModelMixin):
     queryset = CustomUser.objects.all()
     serializer_class = UserListSerializer
-    permission_classes = (permissions.IsAuthenticated, IsAdmin,)
-    #permission_classes = (permissions.AllowAny,)
+    #permission_classes = (permissions.IsAuthenticated, IsAdmin,)
+    permission_classes = (permissions.AllowAny,)
 
     def get_queryset(self):
         return self.queryset.filter(is_active=True)

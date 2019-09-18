@@ -60,6 +60,7 @@ class CardCreateView(generics.CreateAPIView):
                     user.id_stripe,
                     source=token.id
                 )
+                print(token)
                 print(card)
             else:
                 token = stripe.Token.create(
@@ -74,6 +75,8 @@ class CardCreateView(generics.CreateAPIView):
                     self.request.user.id_stripe,
                     source=token.id
                 )
+                print(token)
+                print(card)
             return Response("Create card successful.", status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -108,6 +111,7 @@ class CardDetailView(generics.RetrieveDestroyAPIView):
                 object='card'
             )
             mycard = cards['data'][0]
+            print(mycard.id)
             stripe.Customer.delete_source(
                 request.user.id_stripe,
                 mycard.id

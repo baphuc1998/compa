@@ -1,8 +1,7 @@
 from PIL import Image
 from PIL import ExifTags
-imgName = '291c0ee32e0df140e7f7b1627ddcb2a36f83aff9b3ae671439bf7e345af264e7.jpg'
+imgName = 'image name'
 img = Image.open(imgName)
-print(img.format)
 
 try:
     for orientation in ExifTags.TAGS.keys():
@@ -37,6 +36,6 @@ if width > 1028 or height > 1028:
 
 img = img.resize(size, Image.BILINEAR)
 
-img.save('resize_' + imgName)
+img.save(imgName)
 
 img.close()

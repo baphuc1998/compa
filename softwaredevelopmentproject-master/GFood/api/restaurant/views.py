@@ -38,10 +38,20 @@ class RestaurantDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = RestaurantDetailSerializer
     permission_classes = (permissions.AllowAny, IsOwnerOrAdmin,)
 
-    def update(self, request, pk=None):
+    # def update(self, request, pk=None):
+    #     obj = self.get_object()
+    #     obj.user=self.request.user
+    #     obj.save()
+    
+    def put(self, request, *args, **kwargs):
         obj = self.get_object()
         obj.user=self.request.user
         obj.save()
+        return self.update(request, *args, **kwargs)
+
+    def partial_update(self, request, *args, **kwargs):  
+        kwargs['partial'] = True
+        return self.update(request, *args, **kwargs)
 
     def delete(self, request, pk=None):
         obj = self.get_object()
@@ -66,26 +76,26 @@ class DetailApprovalView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ApprovedSerializer
     permission_classes = (IsAdmin,)
 
-    def update(self,request, pk=None):
-        obj = self.get_object()
-        is_active = request.data['is_active']
-        if is_active:
-            if is_active == 'true':
-                obj.is_active = True
-                obj.save()
-                obj_user = obj.user
-                obj_user.is_merchant = True
-                obj_user.save()
-                return Response("Successfully", status = status.HTTP_201_CREATED)
-            else:
-                obj.is_active = False
-                obj.save()
-                obj_user = obj.user
-                obj_user.is_merchant = False
-                obj_user.save()
-                return Response("Successfully", status = status.HTTP_201_CREATED)
-        else:
-            return Response("Something went wrong", status = status.HTTP_400_BAD_REQUEST)
+    # def update(self,request, pk=None):
+    #     obj = self.get_object()
+    #     is_active = request.data['is_active']
+    #     if is_active:
+    #         if is_active == 'true':
+    #             obj.is_active = True
+    #             obj.save()
+    #             obj_user = obj.user
+    #             obj_user.is_merchant = True
+    #             obj_user.save()
+    #             return Response("Successfully", status = status.HTTP_201_CREATED)
+    #         else:
+    #             obj.is_active = False
+    #             obj.save()
+    #             obj_user = obj.user
+    #             obj_user.is_merchant = False
+    #             obj_user.save()
+    #             return Response("Successfully", status = status.HTTP_201_CREATED)
+    #     else:
+    #         return Response("Something went wrong", status = status.HTTP_400_BAD_REQUEST)
 
     def partial_update(self, request, *args, **kwargs):   
         kwargs['partial'] = True

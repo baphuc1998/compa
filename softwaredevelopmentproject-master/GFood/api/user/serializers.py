@@ -8,7 +8,6 @@ class UserListSerializer(ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ('url','id','username','is_staff','phone','address','is_active')
-    # def update(self, instance, validated_data):
 
 class UserCreateSerializer(ModelSerializer):
     password = serializers.CharField(write_only=True, style={'input_type': 'password'})

@@ -7,7 +7,8 @@ from rest_framework import status
 from GFood.permissions import *
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q
-
+import stripe
+from GladFood import settings
 
 class BillListView(generics.ListAPIView, mixins.CreateModelMixin):
     queryset = Bill.objects.all()
@@ -39,5 +40,23 @@ class BillListView(generics.ListAPIView, mixins.CreateModelMixin):
 
 class BillDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Bill.objects.all()
-    serializer_class = BillListSerializer
+    serializer_class = BillDetailSerializer
     permission_classes = (permissions.IsAuthenticated, IsAdmin,)
+
+    def partial_update(self, request, *args, **kwargs):   
+        kwargs['partial'] = True
+        status = request.data['status']
+        
+        if status == "completed":
+            bill = self.get_object()
+            items = bill.item_in_bill.filter(status="delivery")
+            stripe.api_key = settings.STRIPE_SECRET_KEY
+            for item in items:
+                trans = stripe.Transfer.create(
+                    amount=item.price*item.quantity*0.8,
+                    currency="vnd",
+                    destination=item.product.restaurant.user.account_stripe,
+                    transfer_group="BILL_"+str(bill.id)
+                )
+                print(trans)
+        return self.update(request, *args, **kwargs)
