@@ -4,4 +4,5 @@ from rest_framework.serializers import ModelSerializer,HyperlinkedIdentityField
 
 
 class StripeAccountCreateSerializer(serializers.Serializer):
+    
     agreement = serializers.BooleanField()

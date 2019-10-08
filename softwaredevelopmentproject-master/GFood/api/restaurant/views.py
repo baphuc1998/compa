@@ -34,7 +34,8 @@ class RestaurantListView(generics.ListAPIView, mixins.CreateModelMixin):
         if serializer.is_valid():
             self.object = serializer.save(user=self.request.user)
             headers = self.get_success_headers(serializer.data)
-            return Response("You was created", status=status.HTTP_201_CREATED, headers=headers)
+            sers_obj = RestaurantListSerializer(self.object, context={'request': request})
+            return Response( sers_obj.data , status=status.HTTP_200_OK, headers=headers)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         # self.object = serializer.save()
         # return self.create(request)
@@ -43,7 +44,7 @@ class RestaurantListView(generics.ListAPIView, mixins.CreateModelMixin):
         #     headers = self.get_success_headers(serializer.data)
         #     # Here we serialize the object with the proper depth = 2
         #     new_c = ProgramGet(self.object, context={'request': request})
-        #     return Response(new_c.data, status = status.HTTP_201_CREATED, headers = headers)
+        #     return Response(new_c.data, status = status.HTTP_200_OK, headers = headers)
         # return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 
 
@@ -89,7 +90,7 @@ class RestaurantDetailView(generics.RetrieveUpdateDestroyAPIView):
         obj = self.get_object()
         obj.is_deleted = True
         obj.save()
-        return Response("Delete successfully", status=status.HTTP_201_CREATED)
+        return Response("Delete successfully", status=status.HTTP_200_OK)
 
 
 # Part only for admin
@@ -120,14 +121,14 @@ class DetailApprovalView(generics.RetrieveUpdateDestroyAPIView):
     #             obj_user = obj.user
     #             obj_user.is_merchant = True
     #             obj_user.save()
-    #             return Response("Successfully", status = status.HTTP_201_CREATED)
+    #             return Response("Successfully", status = status.HTTP_200_OK)
     #         else:
     #             obj.is_active = False
     #             obj.save()
     #             obj_user = obj.user
     #             obj_user.is_merchant = False
     #             obj_user.save()
-    #             return Response("Successfully", status = status.HTTP_201_CREATED)
+    #             return Response("Successfully", status = status.HTTP_200_OK)
     #     else:
     #         return Response("Something went wrong", status = status.HTTP_400_BAD_REQUEST)
 
@@ -143,14 +144,14 @@ class DetailApprovalView(generics.RetrieveUpdateDestroyAPIView):
                 obj_user = obj.user
                 obj_user.is_merchant = True
                 obj_user.save()
-                return Response("Active Successfully", status = status.HTTP_201_CREATED)
+                return Response("Active Successfully", status = status.HTTP_200_OK)
             else:
                 obj.is_active = False
                 obj.save()
                 obj_user = obj.user
                 obj_user.is_merchant = False
                 obj_user.save()
-                return Response("Deactive Successfully", status = status.HTTP_201_CREATED)
+                return Response("Deactive Successfully", status = status.HTTP_200_OK)
         else:
             return Response("Something went wrong", status = status.HTTP_400_BAD_REQUEST)
 

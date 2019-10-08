@@ -21,7 +21,8 @@ class ReviewListView(generics.ListAPIView, mixins.CreateModelMixin):
         if serializer.is_valid():
             self.object = serializer.save(user = request.user)
             headers = self.get_success_headers(serializer.data)
-            return Response("Add review successfully", status = status.HTTP_201_CREATED, headers = headers)
+            sers_obj = ReviewListSerializer(self.object, context={'request': request})
+            return Response( sers_obj.data , status = status.HTTP_200_OK, headers = headers)
         return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 
 

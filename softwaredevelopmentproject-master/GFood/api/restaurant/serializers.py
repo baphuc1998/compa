@@ -30,11 +30,13 @@ class ListApprovedSerializer(ModelSerializer):
 
     class Meta:
         model = Restaurant
-        fields = ('id','name','url','is_active','image')
+        fields = '__all__'
+        depth = 2
 
 class ApprovedSerializer(ModelSerializer):
 
     class Meta:
         model = Restaurant
-        fields = ('id','name','is_active','image')
-        read_only_fields = ('name','image',)
+        fields = ('id','name','address','detail','user','is_active','image')
+        read_only_fields = ('name','address','detail','user','image',)
+        depth = 2

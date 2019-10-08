@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from GFood.permissions import *
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter, OrderingFilter
 from GFood.patigations import *
 from GladFood import settings
 from Utils import base64Resize
@@ -16,12 +17,12 @@ class ProductListView(generics.ListAPIView, mixins.CreateModelMixin):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly, CanCreateProductOrNot,)
 #     pagination_class = Patigation_50_item
 
-    filter_backends = (DjangoFilterBackend,)
-    filter_fields = ('restaurant',)
-
+    filter_backends = (DjangoFilterBackend,OrderingFilter,SearchFilter,)
+    filter_fields = ('restaurant','category',)
+    ordering_fields = ['price']
+    search_fields = ('name',)
     def get_queryset(self):
-        # return self.queryset.filter(is_deleted=False, restaurant__is_active=True).order_by("?")
-        return self.queryset.filter(is_deleted=False, restaurant__is_active=True).order_by('-id')
+        return self.queryset.filter(is_deleted=False, restaurant__is_active=True ).order_by("?")
 
     def post(self, request):
         # base64image
@@ -41,7 +42,8 @@ class ProductListView(generics.ListAPIView, mixins.CreateModelMixin):
             restaurant = self.request.user.res_of_user.all().first()
             self.object = serializer.save(restaurant = restaurant)
             headers = self.get_success_headers(serializer.data)
-            return Response("Create successfully", status = status.HTTP_201_CREATED, headers = headers)
+            sers_obj = ProductListSerializer(self.object, context={'request': request})
+            return Response(sers_obj.data, status = status.HTTP_200_OK, headers = headers)
         return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 
 class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -75,4 +77,4 @@ class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
         obj = self.get_object()
         obj.is_deleted = True
         obj.save()
-        return Response("Delete successfully", status = status.HTTP_201_CREATED)
+        return Response("Delete successfully", status = status.HTTP_200_OK)

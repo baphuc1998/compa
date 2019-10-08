@@ -6,17 +6,20 @@ from rest_framework.response import Response
 from rest_framework import status
 from GFood.permissions import *
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter, OrderingFilter
 import stripe
 from GladFood import settings
 from django.db.models import Q
-
+import json
+from django.core import serializers as sers
 
 class ItemListView(generics.ListAPIView, mixins.CreateModelMixin):
     queryset = Item.objects.all()
     serializer_class = ItemListSerializer
     permission_classes = (permissions.IsAuthenticated,)
-    filter_backends = (DjangoFilterBackend,)
-    filter_fields = ('bill',)
+    filter_backends = (DjangoFilterBackend,OrderingFilter,)
+    filter_fields = ('bill','status',)
+    ordering_fields = ['create_at']
 
     def get_queryset(self):
         if self.request.user.is_superuser:
@@ -27,6 +30,12 @@ class ItemListView(generics.ListAPIView, mixins.CreateModelMixin):
     def post(self, request):
         serializer = ItemCreateSerializer(data = request.data, context={'request': request})
         if serializer.is_valid():
+            try:
+                _quantity = request.data['quantity']
+                if _quantity < 1:
+                    return Response("The quantity is incorrect", status=status.HTTP_406_NOT_ACCEPTABLE)
+            except:
+                return Response("The quantity is incorrect",  status=status.HTTP_406_NOT_ACCEPTABLE)
             cart = Cart.objects.filter(user = request.user)
 
             if cart.count() == 1:
@@ -41,12 +50,17 @@ class ItemListView(generics.ListAPIView, mixins.CreateModelMixin):
                 item = item.first()
                 item.quantity = request.data['quantity']
                 item.save()
-                return Response("Add item successfully", status = status.HTTP_201_CREATED)
+
+                sers_obj = sers.serialize('json', [item,])
+                return Response(sers_obj, status = status.HTTP_200_OK)
 
             food = Product.objects.get(id = food_id)
             self.object = serializer.save(cart = cart, price = food.price )
             headers = self.get_success_headers(serializer.data)
-            return Response("Add Item successfully", status = status.HTTP_201_CREATED, headers = headers)
+            
+            sers_obj = ItemListSerializer(self.object, context={'request': request})
+
+            return Response(sers_obj.data , status = status.HTTP_200_OK, headers = headers)
         return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 
 class ItemDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -75,6 +89,9 @@ class MerchantItemListView(generics.ListAPIView):
     queryset = Item.objects.all()
     serializer_class = Merchant_ItemListSerializer
     permission_classes = (permissions.IsAuthenticated, IsMerchant,)
+    filter_backends = (DjangoFilterBackend,OrderingFilter,)
+    filter_fields = ('status',)
+    ordering_fields = ['create_at']
 
     def get_queryset(self):
         return self.queryset.filter( ~Q(bill=None), product__restaurant__user=self.request.user )
@@ -98,17 +115,18 @@ class MerchantItemDetailView(generics.RetrieveUpdateAPIView):
             try:
                 stripe.api_key = settings.STRIPE_SECRET_KEY
                 item = self.get_object()
-                print(item.product.restaurant.user.account_stripe)
-                trans = stripe.Transfer.create(
+
+                stripe.Transfer.create(
                     amount=int(item.price*item.quantity*0.8*0.00005*100),
                     currency="usd",
                     destination=item.product.restaurant.user.account_stripe,
                     transfer_group="BILL_"+str(item.bill.id)
                 )
-                # print(trans)
                 obj.status = 'completed'
                 obj.save()
-                Response("Change status successfully", status = status.HTTP_201_CREATED)
+                sers_obj = sers.serialize('json', [obj,])
+
+                Response(sers_obj, status = status.HTTP_200_OK)
             except:
                 Response("Failed", status = status.HTTP_400_BAD_REQUEST)
 
@@ -126,4 +144,30 @@ class MerchantItemDetailView(generics.RetrieveUpdateAPIView):
                 )
             except:
                 return Response("Can not connect to Stripe platform", status = status.HTTP_200_OK)
-        return Response("Change status successfully", status = status.HTTP_201_CREATED)
+        sers_obj = sers.serialize('json', [obj,])
+        return Response( sers_obj , status = status.HTTP_200_OK)
+
+from django.db.models import Max, Sum, F, Count
+class RevenueAPIView(generics.GenericAPIView):
+    
+    def get(self, request):
+        item = Item.objects.all()
+        serializer = RevenueSerializer(item)
+        revenue_by_branch = Item.objects.filter(status='completed').values('product__restaurant__name').annotate(Revenue=Sum(F('price')*F('quantity')))
+        return Response({'Revenue': revenue_by_branch if revenue_by_branch else 0 })
+
+from itertools import groupby
+
+class Merchant_RevenueAPIView(generics.GenericAPIView):
+
+    def get(self, request):
+
+        invoices = Item.objects.only('create_at', 'price').order_by('create_at')
+        month_totals = {
+            k: sum(x.price for x in g) 
+            for k, g in groupby(invoices, key=lambda i: i.create_at.month)
+        }
+        return Response(month_totals)
+        # _item = Item.objects.filter(status='completed',product__restaurant__user=request.user)
+        # revenue = _item.values('product__restaurant__name').annotate(Revenue=Sum(F('price')*F('quantity')))
+        # return Response({'Revenue': revenue if revenue else 0 })

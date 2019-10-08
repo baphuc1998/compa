@@ -31,7 +31,7 @@ class StripeAccountCreateView(generics.ListAPIView, mixins.CreateModelMixin):
     def post(self, request):
         #print(request.user.account_stripe)
         if request.user.account_stripe != None:
-            return Response("You was passed this step", status=status.HTTP_200_OK)
+            return Response("You are already a member in GFood", status=status.HTTP_200_OK)
         try:
             stripe.api_key = settings.STRIPE_SECRET_KEY
             acc = stripe.Account.create(
@@ -44,6 +44,6 @@ class StripeAccountCreateView(generics.ListAPIView, mixins.CreateModelMixin):
             merchant = request.user
             merchant.account_stripe = acc.id
             merchant.save()
-            return Response("Welcome to members of GladFood", status=status.HTTP_200_OK)
+            return Response("Welcome to  be a member of GladFood ! Thank you very much", status=status.HTTP_200_OK)
         except:
             return Response("Can not register merchant", status=status.HTTP_400_BAD_REQUEST)

@@ -9,6 +9,7 @@ class ReviewListSerializer(ModelSerializer):
         model = Review
         fields = '__all__'
         read_only_fields = ('user','status',)
+        depth = 2
 
 class ReviewCreateSerializer(ModelSerializer):
 
@@ -23,6 +24,7 @@ class ReviewDetailSerializer(ModelSerializer):
         model = Review
         fields = '__all__'
         read_only_fields = ('user','status',)
+        depth = 2
 
 class Merchant_ReviewListSerializer(ModelSerializer):
     url = HyperlinkedIdentityField(view_name='gfood:merchant_detail_review',lookup_field='pk')
@@ -31,6 +33,7 @@ class Merchant_ReviewListSerializer(ModelSerializer):
         model = Review
         fields = '__all__'
         read_only_fields = ('user','comment','product','star',)
+        depth = 2
 
 class Merchant_ReviewDetailSerializer(ModelSerializer):
 
@@ -38,3 +41,4 @@ class Merchant_ReviewDetailSerializer(ModelSerializer):
         model = Review
         fields = '__all__'
         read_only_fields = ('user','comment','product','star',)
+        depth = 2

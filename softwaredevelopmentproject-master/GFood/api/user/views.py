@@ -6,7 +6,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from GFood.permissions import *
 from Utils import base64Resize
-from django_filters.rest_framework import DjangoFilterBackend
+#from .permissions import *
+#from django_filters.rest_framework import DjangoFilterBackend
+#from rest_framework import filters
 from GladFood import settings
 import stripe
 
@@ -15,8 +17,8 @@ import stripe
 class UserListView(generics.ListAPIView, mixins.ListModelMixin):
     queryset = CustomUser.objects.all()
     serializer_class = UserListSerializer
-    #permission_classes = (permissions.IsAuthenticated, IsAdmin,)
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (permissions.IsAuthenticated, IsAdmin,)
+    #permission_classes = (permissions.AllowAny,)
 
     def get_queryset(self):
         return self.queryset.filter(is_active=True)
@@ -30,6 +32,7 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
 
         #base64image
         kwargs['partial'] = True
+        obj = self.get_object()
 
         try:
             str_image = request.data['image']
@@ -76,7 +79,7 @@ class ResetPasswordView(generics.RetrieveUpdateAPIView):
         if len(password) > 4: 
             obj.set_password(password)
             obj.save()
-            return Response("You have reset password successfully", status = status.HTTP_201_CREATED)
+            return Response("You have reset password successfully", status = status.HTTP_200_OK)
         return Response("Something went wrong", status = status.HTTP_400_BAD_REQUEST)
 
 from rest_framework.views import APIView
@@ -93,8 +96,8 @@ class ChangePassView(generics.CreateAPIView):
             newpwd = request.data['new_password']
             obj.set_password(newpwd)
             obj.save()
-            return Response("You have changed your password successfully ", status = status.HTTP_201_CREATED)
-        return Response("Something went wrong", status = status.HTTP_400_BAD_REQUEST)
+            return Response("You have changed your password successfully ", status = status.HTTP_200_OK)
+        return Response("password incorrect", status = status.HTTP_400_BAD_REQUEST)
 
 
 #Login API to get token

@@ -93,3 +93,8 @@ class CanApproveReivew(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         IsPossible = obj.product.restaurant.user == request.user
         return IsPossible
+
+class CanDeleteBill(permissions.BasePermission):
+
+    def has_object_permission(self, request, view, obj):
+        return obj.user == request.user

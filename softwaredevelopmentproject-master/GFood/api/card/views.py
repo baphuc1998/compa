@@ -28,14 +28,14 @@ class CardCreateView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         try:
             stripe.api_key = settings.STRIPE_SECRET_KEY
-            cards = stripe.Customer.list_sources(
-                request.user.id_stripe,
-                limit=2,
-                object='card'
-            )
-
-            if len(cards['data']) > 0:
-                return Response("Your card already exists", status=status.HTTP_200_OK)
+            if request.user.id_stripe != None:
+                cards = stripe.Customer.list_sources(
+                    request.user.id_stripe,
+                    limit=2,
+                    object='card'
+                )
+                if len(cards['data']) > 0:
+                    return Response("Your card already exists", status=status.HTTP_200_OK)
             serializer = CardCreateSerializer(data=request.data)
             if serializer.is_valid():
                 card_number = serializer.validated_data['card_number']
@@ -44,16 +44,20 @@ class CardCreateView(generics.CreateAPIView):
                 cvc = serializer.validated_data['cvc']
 
                 if not check(exp_month, exp_year):
-                    return Response("This card has expired or is about to expire soon", status=status.HTTP_200_OK)
+                    return Response("This card has expired or is about to expire soon", status=status.HTTP_400_BAD_REQUEST)
 
                 if request.user.id_stripe == None:
+
                     user = request.user
+                    print(user.username)
+                    print(user.email)
                     new_stripe = stripe.Customer.create(
-                        description="Customer for "+user.username,
+                        description="Customer for "+str(user.username),
                         #source="tok_mastercard",
-                        email=user.email
+                        email="mailtest@gmail.com"
                     )
 
+                    print(new_stripe)
                     user.id_stripe = new_stripe.id
                     user.save()
 
@@ -69,8 +73,7 @@ class CardCreateView(generics.CreateAPIView):
                         user.id_stripe,
                         source=token.id
                     )
-                    print(token)
-                    print(card)
+
                 else:
                     token = stripe.Token.create(
                         card={
@@ -84,12 +87,11 @@ class CardCreateView(generics.CreateAPIView):
                         self.request.user.id_stripe,
                         source=token.id
                     )
-                    print(token)
-                    print(card)
+
                 return Response("Create card successful.", status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except:
-            return Response("Can not connect to Stripe at this time !!", status=status.HTTP_400_BAD_REQUEST)
+            return Response("Invalid Card Number!!", status=status.HTTP_400_BAD_REQUEST)
 
 class CardDetailView(generics.RetrieveDestroyAPIView):
     serializer_class = CustomUserSerializer

@@ -10,6 +10,7 @@ class ProductListSerializer(ModelSerializer):
         model = Product
         fields = '__all__'
         read_only_fields = ('restaurant','is_deleted','status',)
+        depth = 2
 
 class ProductCreateSerializer(ModelSerializer):
 
@@ -23,5 +24,5 @@ class ProductDetailSerializer(ModelSerializer):
     class Meta:
         model = Product
         fields = '__all__'
-        depth = 2
         read_only_fields = ('restaurant','is_deleted',)
+        depth = 2

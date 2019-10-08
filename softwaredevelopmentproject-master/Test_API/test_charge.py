@@ -86,3 +86,17 @@ print(re)
 # )
 # print(acc.id)
 #stripe.Account.delete('acct_1FISNsJUFtvpWRpw')
+
+
+"[{"model": "GFood.item", "pk": 22, 
+    "fields": {
+        "product": 7, 
+        "quantity": 1, 
+        "price": 590000, 
+        "cart": 5, 
+        "bill": 10, 
+        "create_at": "2019-10-04T01:13:04.906Z", 
+        "status": "completed", 
+        "is_deleted": false
+      }
+}]"

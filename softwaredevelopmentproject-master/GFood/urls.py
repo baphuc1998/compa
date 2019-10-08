@@ -78,4 +78,9 @@ urlpatterns = [
     url(r'^api/user/card/$', card_views.CardCreateView.as_view() ),
     url(r'^api/user/mycard/$', card_views.CardDetailView.as_view() ),
 
+    #Revenue API
+    url(r'^api/revenue/$', item_views.RevenueAPIView.as_view() ),
+    url(r'^api/merchant/revenue/$', item_views.Merchant_RevenueAPIView.as_view() ),
+
+
 ]

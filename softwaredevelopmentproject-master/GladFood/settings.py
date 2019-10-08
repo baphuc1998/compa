@@ -87,26 +87,26 @@ WSGI_APPLICATION = 'GladFood.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
-
 DATABASES = {
     'default': {
-        'ENGINE': 'mysql.connector.django',
-        'NAME': 'localdb',
-        'USER': 'azure',
-        'PASSWORD': '6#vWHD_$',
-        'HOST': '127.0.0.1',
-        'PORT': '49181',
-#         'OPTIONS': {
-#             'charset': 'utf8mb4'
-#         },
-    },
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'mysql.connector.django',
+#         'NAME': 'localdb',
+#         'USER': 'azure',
+#         'PASSWORD': '6#vWHD_$',
+#         'HOST': '127.0.0.1',
+#         'PORT': '49181',
+# #         'OPTIONS': {
+# #             'charset': 'utf8mb4'
+# #         },
+#     },
+# }
 
 
 #APPEND_SLASH=False

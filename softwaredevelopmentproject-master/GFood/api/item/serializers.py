@@ -31,14 +31,14 @@ class Merchant_ItemListSerializer(ModelSerializer):
     class Meta:
         model = Item
         fields = '__all__'
-        # depth = 3
+        depth = 2
 
 class Merchant_ItemDetailSerializer(ModelSerializer):
     
     class Meta:
         model = Item
         fields = '__all__'
-        read_only_fields = ('cart','bill','price','quantity',)
+        read_only_fields = ('cart','bill','price','quantity','is_deleted',)
         depth = 2
 
 
@@ -48,6 +48,7 @@ class AdminListItemSerializer(ModelSerializer):
     class Meta:
         model = Item
         fields = '__all__'
+        depth = 2
 
 
 class AdminDetailItemSerializer(ModelSerializer):
@@ -55,3 +56,12 @@ class AdminDetailItemSerializer(ModelSerializer):
         model = Item
         fields = '__all__'
         read_only_fields = ('cart','bill','price','quantity',)
+        depth = 2
+
+
+class RevenueSerializer(ModelSerializer):
+
+    class Meta:
+        model = Item
+        fields = "__all__"
+        depth = 2

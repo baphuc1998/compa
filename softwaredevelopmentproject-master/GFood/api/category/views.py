@@ -22,7 +22,9 @@ class CategoryListView(generics.ListAPIView, mixins.CreateModelMixin):
         if serializer.is_valid():
             self.object = serializer.save()
             headers = self.get_success_headers(serializer.data)
-            return Response("You was created", status = status.HTTP_201_CREATED, headers = headers)
+            sers_obj = CategoryListSerializer(self.object, context={'request': request})
+
+            return Response(sers_obj.data, status = status.HTTP_201_CREATED, headers = headers)
         return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 
 class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):

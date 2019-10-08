@@ -80,6 +80,7 @@ class Bill(models.Model):
 
     #_Choices = Choices('waiting', 'checking', 'delivery','completed','cancelled')
     #status = models.CharField(max_length=15,null=True, choices=_Choices)
+
     status = models.CharField(max_length=15,null=True)
     address = models.CharField(max_length=100, null=True)
     is_deleted = models.BooleanField(default=False, null=True)
@@ -108,7 +109,7 @@ class Review(models.Model):
     star = models.IntegerField(null=True)
     comment = models.CharField(max_length=100, null=True)
     status = models.BooleanField(default=False)
-
+ 
 class Transaction(models.Model):
     transaction_id = models.CharField(max_length=30)
     user = models.ForeignKey(CustomUser, on_delete = models.CASCADE)

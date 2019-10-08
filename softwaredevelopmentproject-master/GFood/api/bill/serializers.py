@@ -9,6 +9,7 @@ class BillListSerializer(ModelSerializer):
         model = Bill
         fields = '__all__'
         read_only_fields = ('user','total','is_deleted','status',)
+        depth = 2
 
 class BillCreateSerializer(ModelSerializer):
 
@@ -23,6 +24,7 @@ class BillDetailSerializer(ModelSerializer):
         model = Bill
         fields = '__all__'
         read_only_fields = ('user','total','is_deleted','address','address',)
+        depth = 2
 
 
 class Merchant_BillListSerializer(ModelSerializer):

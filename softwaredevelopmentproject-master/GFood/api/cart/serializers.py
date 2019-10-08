@@ -9,6 +9,7 @@ class CartListSerializer(ModelSerializer):
         model = Item
         fields = '__all__'
         #read_only_fields = ('create_at', 'is_deleted',)
+        depth = 2
 
 class CartCreateSerializer(ModelSerializer):
 
@@ -22,3 +23,4 @@ class CartDetailSerializer(ModelSerializer):
     class Meta:
         model = Cart
         fields = '__all__'
+        depth = 2 

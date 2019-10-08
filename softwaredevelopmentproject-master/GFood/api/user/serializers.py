@@ -63,9 +63,10 @@ class DetailUserforAdmin(ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ('id','name','username','password')
-        read_only_fields = ('name','username',)
         extra_kwargs = {'password': {'write_only': True}}
+        fields = ('id','name','username','password','address','phone','id_stripe','account_stripe','last_login')
+        read_only_fields = ('id','name','username','address','phone','id_stripe','account_stripe','last_login',)
+        # extra_kwargs = {'password': {'write_only': True}}
 
     # def update(self, instance, validated_data):
     #     password = validated_data.get('password', instance.password)
