@@ -6,9 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from GFood.permissions import *
 from Utils import base64Resize
-#from .permissions import *
-#from django_filters.rest_framework import DjangoFilterBackend
-#from rest_framework import filters
+from django_filters.rest_framework import DjangoFilterBackend
 from GladFood import settings
 import stripe
 
