@@ -57,15 +57,15 @@ class ListUserforAdmin(ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ('id','url','username','password')
+        fields = ('id','name','username','password','address','phone','is_merchant','id_stripe','account_stripe','last_login')
 
 class DetailUserforAdmin(ModelSerializer):
 
     class Meta:
         model = CustomUser
         extra_kwargs = {'password': {'write_only': True}}
-        fields = ('id','name','username','password','address','phone','id_stripe','account_stripe','last_login')
-        read_only_fields = ('id','name','username','address','phone','id_stripe','account_stripe','last_login',)
+        fields = ('id','name','username','password','address','phone','is_merchant','id_stripe','account_stripe','last_login')
+        read_only_fields = ('id','name','username','address','phone','is_merchant','id_stripe','account_stripe','last_login',)
         # extra_kwargs = {'password': {'write_only': True}}
 
     # def update(self, instance, validated_data):

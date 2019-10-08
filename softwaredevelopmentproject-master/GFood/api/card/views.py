@@ -49,15 +49,15 @@ class CardCreateView(generics.CreateAPIView):
                 if request.user.id_stripe == None:
 
                     user = request.user
-                    print(user.username)
-                    print(user.email)
+                    # print(user.username)
+                    # print(user.email)
                     new_stripe = stripe.Customer.create(
                         description="Customer for "+str(user.username),
                         #source="tok_mastercard",
-                        email="mailtest@gmail.com"
+                        email=user.email
                     )
 
-                    print(new_stripe)
+                    # print(new_stripe)
                     user.id_stripe = new_stripe.id
                     user.save()
 

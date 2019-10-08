@@ -22,7 +22,7 @@ class ProductListView(generics.ListAPIView, mixins.CreateModelMixin):
     ordering_fields = ['price']
     search_fields = ('name',)
     def get_queryset(self):
-        return self.queryset.filter(is_deleted=False, restaurant__is_active=True ).order_by("?")
+        return self.queryset.filter(is_deleted=False, restaurant__is_active=True ).order_by('-id')
 
     def post(self, request):
         # base64image

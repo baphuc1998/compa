@@ -24,7 +24,7 @@ class ItemListView(generics.ListAPIView, mixins.CreateModelMixin):
     def get_queryset(self):
         if self.request.user.is_superuser:
             return self.queryset.all()
-        return self.queryset.filter(cart__user=self.request.user, is_deleted=False)
+        return self.queryset.filter(cart__user=self.request.user, is_deleted=False).order_by('-id')
         #return self.queryset.all()
 
     def post(self, request):
@@ -94,7 +94,7 @@ class MerchantItemListView(generics.ListAPIView):
     ordering_fields = ['create_at']
 
     def get_queryset(self):
-        return self.queryset.filter( ~Q(bill=None), product__restaurant__user=self.request.user )
+        return self.queryset.filter( ~Q(bill=None), product__restaurant__user=self.request.user ).order_by('-id')
 
 class MerchantItemDetailView(generics.RetrieveUpdateAPIView):
     queryset = Item.objects.all()

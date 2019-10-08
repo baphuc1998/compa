@@ -15,7 +15,7 @@ class RestaurantListView(generics.ListAPIView, mixins.CreateModelMixin):
     permission_classes = (permissions.AllowAny,)
 
     def get_queryset(self):
-        return self.queryset.filter(is_deleted=False)
+        return self.queryset.filter(is_deleted=False).order_by('-id')
 
     def post(self, request):
         # base64image
@@ -103,7 +103,7 @@ class ListApprovalView(generics.ListAPIView):
     filter_fields = ('is_active',)
 
     def get_queryset(self):
-        return self.queryset.all()
+        return self.queryset.all().order_by('-id')
 
 
 class DetailApprovalView(generics.RetrieveUpdateDestroyAPIView):

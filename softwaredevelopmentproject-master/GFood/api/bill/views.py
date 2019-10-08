@@ -26,7 +26,7 @@ class BillListView(generics.ListAPIView, mixins.CreateModelMixin):
     def get_queryset(self):
         if self.request.user.is_superuser:
             return self.queryset.all()
-        return self.queryset.filter(user = self.request.user)
+        return self.queryset.filter(user = self.request.user).order_by('-id')
 
     def post(self, request):
         serializer = BillCreateSerializer(data = request.data, context={'request': request})
