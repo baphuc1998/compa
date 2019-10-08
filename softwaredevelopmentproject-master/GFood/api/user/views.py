@@ -5,6 +5,7 @@ from GFood.api.user.serializers import *
 from rest_framework.response import Response
 from rest_framework import status
 from GFood.permissions import *
+from Utils import base64Resize
 #from .permissions import *
 #from django_filters.rest_framework import DjangoFilterBackend
 #from rest_framework import filters
@@ -28,7 +29,23 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (permissions.IsAuthenticated, CanUpdateAccount,)
 
     def partial_update(self, request, *args, **kwargs):   
+
+        #base64image
         kwargs['partial'] = True
+
+        try:
+            str_image = request.data['image']
+            # print(str_image)
+            request.data['image'] = base64Resize.resize(str_image)
+        except:
+            try:
+                obj = self.get_object()
+                request.data['image'] = obj.image
+            except:
+                try:
+                    request.data['image'] = settings.MEDIA_URL + '/' + 'images.png'
+                except:
+                    pass
         return self.update(request, *args, **kwargs)
 
 class UserCreateView(generics.CreateAPIView):

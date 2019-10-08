@@ -2,6 +2,23 @@ import stripe
 
 stripe.api_key = 'sk_test_cn39HFPhtmki2m3JSnnM9AKH00kmPuoEBR'
 
+
+# charge = stripe.Charge.create(
+#     amount=350000,
+#     currency='vnd',
+#     customer= "cus_FnhbvCc17cHvRI",
+#     receipt_email='baphucb1605354f@gmail.com',
+# )
+# print(charge.id)
+#ch_1FNF1GHrvylkCYNZbLylSBEn
+
+re = stripe.Refund.create(
+  charge="ch_1FNFGKHrvylkCYNZitf96XX9",
+  amount=80000
+)
+print(re)
+
+
 # ch = stripe.Charge.create(
 #   amount=50000,
 #   currency="usd",
@@ -32,14 +49,14 @@ stripe.api_key = 'sk_test_cn39HFPhtmki2m3JSnnM9AKH00kmPuoEBR'
 # )
 # print(tran)
 
-tf = stripe.Transfer.create(
-  amount=1000,
-  currency="usd",
-  destination="acct_1FIT3iDlmyrQRrWo",
-  #destination="card_1FIRXlHrvylkCYNZCbRY4Me9",
-  transfer_group="ORDER_95"
-)
-print(tf)
+# tf = stripe.Transfer.create(
+#   amount=1000,
+#   currency="usd",
+#   destination="acct_1FIT3iDlmyrQRrWo",
+#   #destination="card_1FIRXlHrvylkCYNZCbRY4Me9",
+#   transfer_group="ORDER_95"
+# )
+# print(tf)
 
 # payout = stripe.Payout.create(
 #     amount=500,

@@ -49,7 +49,8 @@ class MerchantCreateSerializer(ModelSerializer):
 class UserDetailSerializer(ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ('id','username','is_staff','is_merchant','phone','address')
+        fields = ('id','username','name','phone','address', 'image',)
+        read_only_fields = ('username',)
 
 class ListUserforAdmin(ModelSerializer):
     url = HyperlinkedIdentityField(view_name='gfood:reset_password',lookup_field='pk')

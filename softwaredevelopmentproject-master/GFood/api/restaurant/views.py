@@ -6,7 +6,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from GFood.permissions import *
 from django_filters.rest_framework import DjangoFilterBackend
-
+from Utils import base64Resize
+from GladFood import settings
 
 class RestaurantListView(generics.ListAPIView, mixins.CreateModelMixin):
     queryset = Restaurant.objects.all()
@@ -14,15 +15,27 @@ class RestaurantListView(generics.ListAPIView, mixins.CreateModelMixin):
     permission_classes = (permissions.AllowAny,)
 
     def get_queryset(self):
-        return self.queryset.filter(is_deleted= False)
+        return self.queryset.filter(is_deleted=False)
 
-    def post(self,request):
-        serializer = RestaurantCreateSerializer(data = request.data, context={'request': request})
+    def post(self, request):
+        # base64image
+        try:
+            str_image = request.data['image']
+            # print(str_image)
+            request.data['image'] = base64Resize.resize(str_image)
+        except:
+            try:
+                request.data['image'] = settings.MEDIA_URL + '/' + 'images.png'
+            except:
+                pass
+
+
+        serializer = RestaurantCreateSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
-            self.object = serializer.save(user = self.request.user)
+            self.object = serializer.save(user=self.request.user)
             headers = self.get_success_headers(serializer.data)
-            return Response("You was created", status = status.HTTP_201_CREATED, headers = headers)
-        return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+            return Response("You was created", status=status.HTTP_201_CREATED, headers=headers)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         # self.object = serializer.save()
         # return self.create(request)
         # if serializer.is_valid():
@@ -33,6 +46,7 @@ class RestaurantListView(generics.ListAPIView, mixins.CreateModelMixin):
         #     return Response(new_c.data, status = status.HTTP_201_CREATED, headers = headers)
         # return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 
+
 class RestaurantDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Restaurant.objects.all()
     serializer_class = RestaurantDetailSerializer
@@ -42,24 +56,43 @@ class RestaurantDetailView(generics.RetrieveUpdateDestroyAPIView):
     #     obj = self.get_object()
     #     obj.user=self.request.user
     #     obj.save()
-    
+
     def put(self, request, *args, **kwargs):
         obj = self.get_object()
-        obj.user=self.request.user
+        obj.user = self.request.user
         obj.save()
         return self.update(request, *args, **kwargs)
 
-    def partial_update(self, request, *args, **kwargs):  
+    def partial_update(self, request, *args, **kwargs):
+        # kwargs['partial'] = True
+        # return self.update(request, *args, **kwargs)
+
+        # base64image
         kwargs['partial'] = True
+
+        try:
+            str_image = request.data['image']
+            # print(str_image)
+            request.data['image'] = base64Resize.resize(str_image)
+        except:
+            try:
+                obj = self.get_object()
+                request.data['image'] = obj.image
+            except:
+                try:
+                    request.data['image'] = settings.MEDIA_URL + '/' + 'images.png'
+                except:
+                    pass
         return self.update(request, *args, **kwargs)
 
     def delete(self, request, pk=None):
         obj = self.get_object()
         obj.is_deleted = True
         obj.save()
-        return Response("Delete successfully", status = status.HTTP_201_CREATED)
+        return Response("Delete successfully", status=status.HTTP_201_CREATED)
 
-#Part only for admin
+
+# Part only for admin
 
 class ListApprovalView(generics.ListAPIView):
     queryset = Restaurant.objects.all()
@@ -70,6 +103,7 @@ class ListApprovalView(generics.ListAPIView):
 
     def get_queryset(self):
         return self.queryset.all()
+
 
 class DetailApprovalView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Restaurant.objects.all()
@@ -97,6 +131,27 @@ class DetailApprovalView(generics.RetrieveUpdateDestroyAPIView):
     #     else:
     #         return Response("Something went wrong", status = status.HTTP_400_BAD_REQUEST)
 
-    def partial_update(self, request, *args, **kwargs):   
+    def partial_update(self, request, *args, **kwargs):
         kwargs['partial'] = True
-        return self.update(request, *args, **kwargs)            
+
+        obj = self.get_object()
+        is_active = request.data['is_active']
+        if is_active:
+            if is_active == 'True' or is_active == 'true':
+                obj.is_active = True
+                obj.save()
+                obj_user = obj.user
+                obj_user.is_merchant = True
+                obj_user.save()
+                return Response("Active Successfully", status = status.HTTP_201_CREATED)
+            else:
+                obj.is_active = False
+                obj.save()
+                obj_user = obj.user
+                obj_user.is_merchant = False
+                obj_user.save()
+                return Response("Deactive Successfully", status = status.HTTP_201_CREATED)
+        else:
+            return Response("Something went wrong", status = status.HTTP_400_BAD_REQUEST)
+
+        return self.update(request, *args, **kwargs)

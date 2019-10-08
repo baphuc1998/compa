@@ -8,7 +8,7 @@ class ItemListSerializer(ModelSerializer):
         model = Item
         fields = '__all__'
         read_only_fields = ('cart','bill','price',)
-        #depth = 2
+        depth = 2
 
 class ItemCreateSerializer(ModelSerializer):
 
@@ -22,8 +22,8 @@ class ItemDetailSerializer(ModelSerializer):
     class Meta:
         model = Item
         fields = '__all__'
-        read_only_fields = ('cart','bill','price',)
-        #depth = 2
+        read_only_fields = ('cart','bill','price','status',)
+        depth = 2
 
 class Merchant_ItemListSerializer(ModelSerializer):
     url = HyperlinkedIdentityField(view_name='gfood:merchant_detail_item',lookup_field='pk')

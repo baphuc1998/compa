@@ -10,6 +10,7 @@ from .api.restaurant import views as restaurant_views
 from .api.review import views as review_views
 from .api.item import views as item_views
 from .api.card import views as card_views
+from .api.merchant import views as merchant_views
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -56,7 +57,7 @@ urlpatterns = [
     #item api
     url(r'^api/item/$', item_views.ItemListView.as_view(), name='list_item'),
     url(r'^api/item/(?P<pk>\d+)', item_views.ItemDetailView.as_view(), name='detail_item' ),
-    url(r'^api/merchant/item', item_views.MerchantItemListView.as_view(), name='merchant_list_item'), #List item for merchant accept.
+    url(r'^api/merchant/item/$', item_views.MerchantItemListView.as_view(), name='merchant_list_item'), #List item for merchant accept.
     url(r'^api/merchant/item/(?P<pk>\d+)', item_views.MerchantItemDetailView.as_view(), name='merchant_detail_item'),
 
     #cart api
@@ -74,7 +75,7 @@ urlpatterns = [
     url(r'^api/merchant/review/(?P<pk>\d+)', review_views.MerchantReviewDetailView.as_view(), name='merchant_detail_review'),
 
     #card api
-    url(r'^api/card/create/$', card_views.CardCreateView.as_view() ),
+    url(r'^api/user/card/$', card_views.CardCreateView.as_view() ),
     url(r'^api/user/mycard/$', card_views.CardDetailView.as_view() ),
 
 ]

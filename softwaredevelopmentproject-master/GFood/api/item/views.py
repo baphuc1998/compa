@@ -21,18 +21,28 @@ class ItemListView(generics.ListAPIView, mixins.CreateModelMixin):
     def get_queryset(self):
         if self.request.user.is_superuser:
             return self.queryset.all()
-        return self.queryset.filter(cart__user=self.request.user)
+        return self.queryset.filter(cart__user=self.request.user, is_deleted=False)
         #return self.queryset.all()
 
     def post(self, request):
         serializer = ItemCreateSerializer(data = request.data, context={'request': request})
         if serializer.is_valid():
             cart = Cart.objects.filter(user = request.user)
+
             if cart.count() == 1:
                 cart = cart.first()
             else:
                 cart = Cart.objects.create(user = request.user)
             food_id = request.data['product']
+
+            #check item exist?
+            item = Item.objects.filter(cart=cart, bill=None, product=food_id, is_deleted=False)
+            if item.count() > 0:
+                item = item.first()
+                item.quantity = request.data['quantity']
+                item.save()
+                return Response("Add item successfully", status = status.HTTP_201_CREATED)
+
             food = Product.objects.get(id = food_id)
             self.object = serializer.save(cart = cart, price = food.price )
             headers = self.get_success_headers(serializer.data)
@@ -44,9 +54,19 @@ class ItemDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ItemDetailSerializer
     permission_classes = (permissions.IsAuthenticated, IsItemOwner,)
 
-    def partial_update(self, request, *args, **kwargs):   
-        kwargs['partial'] = True
+    def put(self, request, *args, **kwargs):
+        obj = self.get_object()
+        if obj.bill != None:
+            return Response("You can not modify this item because it has already processed")
         return self.update(request, *args, **kwargs)
+
+    def delete(self, request, pk=None):
+        obj = self.get_object()
+        if obj.bill != None:
+            return Response("You can not modify this item because it has already processed")
+        obj.is_deleted = True
+        obj.save()
+        return Response("Delete successfully", status=status.HTTP_200_OK)
 
 
 #part for Merchant's accepting for the bill which was sent by Customer
@@ -58,9 +78,6 @@ class MerchantItemListView(generics.ListAPIView):
 
     def get_queryset(self):
         return self.queryset.filter( ~Q(bill=None), product__restaurant__user=self.request.user )
-        # trả về các item mà khách hàng đã order.
-        # xử lý: nếu chấp thuận thì trạng thái item đó là completed. Nếu là item đc chấp thuận cuối cùng status bill đó sẽ là delivery.
-        # Nếu từ chối thì item đó là rejected. Stripe sẽ hoàn tiền. Tổng bill đc tính toán lại (nên thêm trường Payable vào Bill model).
 
 class MerchantItemDetailView(generics.RetrieveUpdateAPIView):
     queryset = Item.objects.all()
@@ -70,9 +87,9 @@ class MerchantItemDetailView(generics.RetrieveUpdateAPIView):
     def update(self, request, pk= None):
         obj = self.get_object()
         _status = request.data['status']
-        print(_status)
-        if obj.status == 'completed':
-            return Response("You dont have permission to do this action", status = status.HTTP_200_OK)
+
+        if obj.status == 'completed' or obj.status == 'cancelled':
+            return Response("This bill was delivered or cancelled", status = status.HTTP_200_OK)
 
         if _status == 'delivery':
             obj.status = 'delivery'
@@ -88,7 +105,7 @@ class MerchantItemDetailView(generics.RetrieveUpdateAPIView):
                     destination=item.product.restaurant.user.account_stripe,
                     transfer_group="BILL_"+str(item.bill.id)
                 )
-                print(trans)
+                # print(trans)
                 obj.status = 'completed'
                 obj.save()
                 Response("Change status successfully", status = status.HTTP_201_CREATED)
@@ -101,4 +118,12 @@ class MerchantItemDetailView(generics.RetrieveUpdateAPIView):
             bill = obj.bill
             bill.total = bill.total - (obj.price * obj.quantity)
             bill.save()
+            try:
+                stripe.api_key = settings.STRIPE_SECRET_KEY
+                stripe.Refund.create(
+                    charge=bill.id_charge,
+                    amount=(obj.price * obj.quantity)
+                )
+            except:
+                return Response("Can not connect to Stripe platform", status = status.HTTP_200_OK)
         return Response("Change status successfully", status = status.HTTP_201_CREATED)

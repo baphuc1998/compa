@@ -76,6 +76,8 @@ class Bill(models.Model):
     total = models.IntegerField(null=True)
     create_at = models.DateTimeField(auto_now=True, null=True)
 
+    id_charge = models.CharField(max_length=40, null=True)
+
     #_Choices = Choices('waiting', 'checking', 'delivery','completed','cancelled')
     #status = models.CharField(max_length=15,null=True, choices=_Choices)
     status = models.CharField(max_length=15,null=True)
@@ -95,6 +97,7 @@ class Item(models.Model):
     #_Choices = Choices('waiting', 'checking', 'delivery','completed','cancelled')
     #status = models.CharField(max_length=15,choices=_Choices,null=True, default='waiting')
     status = models.CharField(max_length=15, null=True, default='waiting')
+    is_deleted = models.BooleanField(default=False, null=True)
 
 class Review(models.Model):
     user = models.ForeignKey(

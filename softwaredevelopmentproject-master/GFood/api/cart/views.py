@@ -17,4 +17,4 @@ class CartListView(generics.ListAPIView):
     def get_queryset(self):
         if self.request.user.is_superuser:
             return self.queryset.all()
-        return self.queryset.filter(bill=None, cart__user=self.request.user)
+        return self.queryset.filter(bill=None, cart__user=self.request.user, is_deleted=False)
